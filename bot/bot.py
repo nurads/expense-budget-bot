@@ -16,7 +16,7 @@ from telebot.types import (
     ChatJoinRequest,
 )
 
-bot = TeleBot(settings.BOT_TOKEN, threaded=False)
+bot = TeleBot(settings.BOT_TOKEN, threaded=False, parse_mode="Markdown")
 
 # User states for conversation flow
 user_states = {}
@@ -128,7 +128,7 @@ def get_user(message, func, *args):
         contact = User.objects.get(username=from_user.id)
 
         return contact
-    except:
+    except Exception as e:
         mark = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
         mark.add(KeyboardButton("Share Contact", request_contact=True))
         bot.register_next_step_handler(message, contact_handler,func,*args)
