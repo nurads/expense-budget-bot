@@ -7,4 +7,5 @@ from django.conf import settings
 class Command(BaseCommand):
 
     def handle(self, *args: Any, **options: Any):
+        print(settings.WEB_HOOK_URL)
         bot.set_webhook(settings.WEB_HOOK_URL)

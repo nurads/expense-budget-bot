@@ -131,12 +131,11 @@ def get_user(message, func, *args):
     except:
         mark = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
         mark.add(KeyboardButton("Share Contact", request_contact=True))
-        bot.register_next_step_handler(message, contact_handler, func)
+        bot.register_next_step_handler(message, contact_handler,func,*args)
         msg = """
 Share your contact
         """
         bot.send_message(message.chat.id, msg, reply_markup=mark)
-        return get_user(message, *args)
 
 
 def get_amount(message, func):
@@ -223,6 +222,9 @@ def handle_cancel_message(message):
 @bot.message_handler(commands=["start"])
 def start(message):
     user = get_user(message, start)
+    
+    if not user:
+        return
 
     bot.send_message(
         message.chat.id, f"Hello {user.first_name}👋", reply_markup=get_keyboard()
@@ -232,6 +234,8 @@ def start(message):
 @bot.message_handler(func=lambda msg: msg.text == msg_earnt)
 def ernt(message, amount=None, text=None):
     user = get_user(message, ernt)
+    if not user:
+        return
     if not amount:
         bot.register_next_step_handler(message, get_amount, ernt)
         return bot.send_message(
@@ -304,6 +308,10 @@ def spnt(message, amount=None, text=None):
 @bot.message_handler(func=lambda msg: msg.text == msg_owe)
 def ow(message, amount=None, text=None):
     user = get_user(message, ow, amount, text)
+    
+    if not user:
+        return
+    
     if not amount:
         bot.register_next_step_handler(message, get_amount, ow)
         return bot.send_message(
@@ -333,6 +341,9 @@ def ow(message, amount=None, text=None):
 @bot.message_handler(func=lambda msg: msg.text == msg_debt)
 def debt(message, amount=None, text=None):
     user = get_user(message, debt, amount, text)
+    
+    if not user:
+        return 
     if not amount:
         bot.register_next_step_handler(message, get_amount, debt)
         return bot.send_message(
