@@ -2,21 +2,22 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 import os
+from urllib.parse import urlparse,parse_qsl
 
 load_dotenv()
-env = os.environ.get
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-BOT_TOKEN = env("BOT_TOKEN")
+BOT_TOKEN = os.getenv("DJANGO_BOT_TOKEN")
 
-WEB_HOOK_URL = env("WEB_HOOK_URL")
+WEB_HOOK_URL = os.getenv("DJANGO_WEBHOOK_URL")
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["expense-budget-bot.vercel.app"]
+ALLOWED_HOSTS = ["expense-budget-bot.vercel.app","localhost","127.0.0.1"]
 
 AUTH_USER_MODEL = "bot.User"
 
@@ -60,15 +61,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
+postgres_url=urlparse(os.getenv("DJANGO_POSTGRES_URL"))
+
+
 DATABASES = {
+    "dev": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    },
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": env("PGDATABASE"),
-        "USER": env("PGUSER"),
-        "PASSWORD": env("PGPASSWORD"),
-        "HOST": env("PGHOST"),
-        "PORT": "5432",
-        "OPTIONS": {"sslmode": "require"},
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": postgres_url.path[1:],
+        "USER": postgres_url.username,
+        "PASSWORD": postgres_url.password,
+        "HOST": postgres_url.hostname,
+        "PORT": postgres_url.port,
+        "OPTIONS": dict(parse_qsl(postgres_url.query)),
         "DISABLE_SERVER_SIDE_CURSORS": True,
     }
 }
